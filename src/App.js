@@ -59,7 +59,7 @@ export default recompact.compose(
       : undefined
     const submit$ = new Subject()
     const text$ = new BehaviorSubject('')
-    const movieNames$ = submit$.withLatestFrom(text$, (submit, text) => text.split('\n'))
+    const movieNames$ = submit$.withLatestFrom(text$, (submit, text) => text.split('\n').filter(name => name.length))
     const movieDescriptions$ = movieNames$
       .switchMap(movieNames => {
         return Promise.all(
@@ -94,18 +94,28 @@ export default recompact.compose(
     movieDescriptions: movieDescriptions$,
   })),
   recompact.withHandlers({
-    onChange: ({ onChange }) => event => onChange(event.target.value),
+    onChange: ({ onChange }) => event => {
+      const text = event.target.value
+      if (text.split('\n').length <= 40) {
+        onChange(text)
+      }
+    },
   })
 )(({ value, onChange, onSubmit, movieDescriptions }) => (
-  <div className="app">
+  <div className="container">
     <h2>Movie database</h2>
-    <div>One movie name per line:</div>
-    <br />
-    <textarea value={value} onChange={onChange} style={{ width: 300, height: 440 }} />
+    <textarea
+      value={value}
+      onChange={onChange}
+      style={{ width: 300, height: 440 }}
+      placeholder="One movie name per line (max 40)"
+    />
 
     <br />
 
-    <button onClick={onSubmit}>Search</button>
+    <button onClick={onSubmit} className="btn btn-success">
+      Search
+    </button>
 
     {movieDescriptions ? (
       <div>
