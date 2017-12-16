@@ -1,0 +1,12 @@
+.movie-table {
+  width: 80%;
+  margin: auto;
+}
+
+.movie-table td {
+  padding: 14px;
+}
+
+.movie-table-description {
+  max-width: 600px;
+}

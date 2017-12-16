@@ -44,8 +44,10 @@ const Movie = ({ movieName, movieDescription }) => {
         {title} ({release_date})
       </td>
       <td>{genre_ids.map(id => GENRES[id]).join(', ')}</td>
-      <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150, height: 200 }} />
-      <td>{overview}</td>
+      <td>
+        <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150, height: 200 }} />
+      </td>
+      <td className="movie-table-description">{overview}</td>
     </tr>
   )
 }
@@ -63,6 +65,7 @@ export default recompact.compose(
           )
         ).then(responses => Promise.all(responses.map(response => response.json())))
       })
+      .do(console.log)
       .withLatestFrom(movieNames$, (jsons, names) =>
         names.reduce(
           (acc, elem, index) => ({
@@ -97,12 +100,13 @@ export default recompact.compose(
     <br />
 
     <button onClick={onSubmit}>Search</button>
-    <table>
-      {movieDescriptions
-        ? Object.entries(movieDescriptions).map(([movieName, movieDescription]) => (
-            <Movie key={movieName} movieName={movieName} movieDescription={movieDescription} />
-          ))
-        : null}
-    </table>
+
+    {movieDescriptions ? (
+      <table className="movie-table">
+        {Object.entries(movieDescriptions).map(([movieName, movieDescription]) => (
+          <Movie key={movieName} movieName={movieName} movieDescription={movieDescription} />
+        ))}
+      </table>
+    ) : null}
   </div>
 ))
