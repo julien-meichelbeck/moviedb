@@ -8,9 +8,6 @@ const API_KEY = 'd533369a57d21cba80e1b1c060585c47'
 
 export default recompact.compose(
   recompact.withObs(() => {
-    const savedMovieDescriptions = localStorage.getItem('movieResults')
-      ? JSON.parse(localStorage.getItem('movieResults'))
-      : undefined
     const submit$ = new Subject()
     const text$ = new BehaviorSubject('')
     const movieNames$ = submit$.withLatestFrom(text$, (submit, text) => text.split('\n').filter(name => name.length))
@@ -32,7 +29,7 @@ export default recompact.compose(
         )
       )
       .do(movieResults => localStorage.setItem('movieResults', JSON.stringify(movieResults)))
-      .startWith(savedMovieDescriptions)
+      .startWith(localStorage.getItem('movieResults') ? JSON.parse(localStorage.getItem('movieResults')) : undefined)
 
     return {
       text$,

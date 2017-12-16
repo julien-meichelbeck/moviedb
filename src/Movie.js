@@ -70,16 +70,18 @@ export default class Movie extends Component {
             ))}
           </ul>
         </td>
-        <td style={{ width: 200 }}>
-          <strong>
-            {title} ({release_date})
-          </strong>
-          <div>{genre_ids.map(id => GENRES[id]).join(', ')}</div>
-        </td>
         <td>
-          <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150, height: 200 }} />
+          <div className="d-flex">
+            <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150, height: 200 }} />
+            <div className="px-3">
+              <strong>
+                {title} ({release_date})
+              </strong>
+              <div>{genre_ids.map(id => GENRES[id]).join(', ')}</div>
+              <div className="py-3">{overview}</div>
+            </div>
+          </div>
         </td>
-        <td className="movie-table-description">{overview}</td>
       </tr>
     )
   }

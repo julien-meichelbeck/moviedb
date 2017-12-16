@@ -3,14 +3,6 @@
   vertical-align: top;
 }
 
-.movie-table-title {
-  font-weight: bold;
-}
-
-.movie-table-description {
-  max-width: 600px;
-}
-
 .movie-search-input {
   height: 200px;
   width: 400px;
