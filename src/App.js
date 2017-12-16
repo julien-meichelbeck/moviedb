@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import recompact from 'recompact'
 import { BehaviorSubject, Subject } from 'rxjs'
 import './App.css'
@@ -27,40 +27,78 @@ const GENRES = {
   37: 'Western',
 }
 
-const Movie = ({ movieName, movieDescription }) => {
-  if (!movieDescription) {
+class Movie extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      movie: this.props.results[0],
+    }
+  }
+
+  onSelectMovie(id) {
+    this.setState({ movie: this.props.results.find(result => result.id === id) })
+  }
+
+  render() {
+    const { movie } = this.state
+    const { movieName, results } = this.props
+    if (!movie) {
+      return (
+        <tr>
+          <td>{movieName}</td>
+          <td>Not Found</td>
+        </tr>
+      )
+    }
+    const { id, title, overview, release_date, poster_path, genre_ids } = movie
     return (
       <tr>
-        <td>{movieName}</td>
-        <td>Not Found</td>
+        <td style={{ width: 250 }}>
+          <strong>{movieName}</strong>
+          <ul>
+            {results.slice(0, 6).map(({ id: resultId, title }) => (
+              <li key={resultId}>
+                {id === resultId ? (
+                  title
+                ) : (
+                  <a
+                    href="#"
+                    onClick={event => {
+                      event.preventDefault()
+                      this.onSelectMovie(resultId)
+                    }}
+                  >
+                    {title}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </td>
+        <td style={{ width: 200 }}>
+          <strong>
+            {title} ({release_date})
+          </strong>
+          <div>{genre_ids.map(id => GENRES[id]).join(', ')}</div>
+        </td>
+        <td>
+          <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150, height: 200 }} />
+        </td>
+        <td className="movie-table-description">{overview}</td>
       </tr>
     )
   }
-
-  const { title, overview, release_date, poster_path, genre_ids } = movieDescription
-  return (
-    <tr>
-      <td className="movie-table-title">
-        {title} ({release_date})
-      </td>
-      <td>{genre_ids.map(id => GENRES[id]).join(', ')}</td>
-      <td>
-        <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150, height: 200 }} />
-      </td>
-      <td className="movie-table-description">{overview}</td>
-    </tr>
-  )
 }
 
 export default recompact.compose(
   recompact.withObs(() => {
-    const savedMovieDescriptions = localStorage.getItem('movieDescriptions')
-      ? JSON.parse(localStorage.getItem('movieDescriptions'))
+    const savedMovieDescriptions = localStorage.getItem('movieResults')
+      ? JSON.parse(localStorage.getItem('movieResults'))
       : undefined
     const submit$ = new Subject()
     const text$ = new BehaviorSubject('')
     const movieNames$ = submit$.withLatestFrom(text$, (submit, text) => text.split('\n').filter(name => name.length))
-    const movieDescriptions$ = movieNames$
+    const movieResults$ = movieNames$
       .switchMap(movieNames => {
         return Promise.all(
           movieNames.map(movieName =>
@@ -72,26 +110,26 @@ export default recompact.compose(
         names.reduce(
           (acc, elem, index) => ({
             ...acc,
-            [elem]: jsons[index].results[0],
+            [elem]: jsons[index].results,
           }),
           {}
         )
       )
-      .do(movieDescriptions => localStorage.setItem('movieDescriptions', JSON.stringify(movieDescriptions)))
+      .do(movieResults => localStorage.setItem('movieResults', JSON.stringify(movieResults)))
       .startWith(savedMovieDescriptions)
 
     return {
       text$,
       submit$,
       movieNames$,
-      movieDescriptions$,
+      movieResults$,
     }
   }),
-  recompact.connectObs(({ text$, submit$, movieDescriptions$ }) => ({
+  recompact.connectObs(({ text$, submit$, movieResults$ }) => ({
     onChange: text$,
     onSubmit: submit$,
     value: text$,
-    movieDescriptions: movieDescriptions$,
+    movieResults: movieResults$,
   })),
   recompact.withHandlers({
     onChange: ({ onChange }) => event => {
@@ -101,7 +139,7 @@ export default recompact.compose(
       }
     },
   })
-)(({ value, onChange, onSubmit, movieDescriptions }) => (
+)(({ value, onChange, onSubmit, movieResults }) => (
   <div className="container">
     <h2>Movie database</h2>
     <textarea
@@ -117,13 +155,13 @@ export default recompact.compose(
       Search
     </button>
 
-    {movieDescriptions ? (
+    {movieResults ? (
       <div>
         <hr />
         <table className="movie-table">
           <tbody>
-            {Object.entries(movieDescriptions).map(([movieName, movieDescription]) => (
-              <Movie key={movieName} movieName={movieName} movieDescription={movieDescription} />
+            {Object.entries(movieResults).map(([movieName, results]) => (
+              <Movie key={movieName} movieName={movieName} results={results} />
             ))}
           </tbody>
         </table>
