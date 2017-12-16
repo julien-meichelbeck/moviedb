@@ -40,7 +40,7 @@ const Movie = ({ movieName, movieDescription }) => {
   const { title, overview, release_date, poster_path, genre_ids } = movieDescription
   return (
     <tr>
-      <td>
+      <td className="movie-table-title">
         {title} ({release_date})
       </td>
       <td>{genre_ids.map(id => GENRES[id]).join(', ')}</td>
@@ -54,6 +54,9 @@ const Movie = ({ movieName, movieDescription }) => {
 
 export default recompact.compose(
   recompact.withObs(() => {
+    const savedMovieDescriptions = localStorage.getItem('movieDescriptions')
+      ? JSON.parse(localStorage.getItem('movieDescriptions'))
+      : undefined
     const submit$ = new Subject()
     const text$ = new BehaviorSubject('')
     const movieNames$ = submit$.withLatestFrom(text$, (submit, text) => text.split('\n'))
@@ -65,7 +68,6 @@ export default recompact.compose(
           )
         ).then(responses => Promise.all(responses.map(response => response.json())))
       })
-      .do(console.log)
       .withLatestFrom(movieNames$, (jsons, names) =>
         names.reduce(
           (acc, elem, index) => ({
@@ -75,6 +77,8 @@ export default recompact.compose(
           {}
         )
       )
+      .do(movieDescriptions => localStorage.setItem('movieDescriptions', JSON.stringify(movieDescriptions)))
+      .startWith(savedMovieDescriptions)
 
     return {
       text$,
@@ -93,8 +97,10 @@ export default recompact.compose(
     onChange: ({ onChange }) => event => onChange(event.target.value),
   })
 )(({ value, onChange, onSubmit, movieDescriptions }) => (
-  <div>
+  <div className="app">
+    <h2>Movie database</h2>
     <div>One movie name per line:</div>
+    <br />
     <textarea value={value} onChange={onChange} style={{ width: 300, height: 440 }} />
 
     <br />
@@ -102,11 +108,16 @@ export default recompact.compose(
     <button onClick={onSubmit}>Search</button>
 
     {movieDescriptions ? (
-      <table className="movie-table">
-        {Object.entries(movieDescriptions).map(([movieName, movieDescription]) => (
-          <Movie key={movieName} movieName={movieName} movieDescription={movieDescription} />
-        ))}
-      </table>
+      <div>
+        <hr />
+        <table className="movie-table">
+          <tbody>
+            {Object.entries(movieDescriptions).map(([movieName, movieDescription]) => (
+              <Movie key={movieName} movieName={movieName} movieDescription={movieDescription} />
+            ))}
+          </tbody>
+        </table>
+      </div>
     ) : null}
   </div>
 ))

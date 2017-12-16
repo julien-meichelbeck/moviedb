@@ -1,8 +1,6 @@
 {
   "name": "moviedb",
   "version": "0.1.0",
-  "predeploy": "npm run build",
-  "deploy": "gh-pages -d build",
   "private": true,
   "homepage": "https://julien-meichelbeck.github.io/moviedb",
   "dependencies": {
@@ -19,6 +17,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   }
 }

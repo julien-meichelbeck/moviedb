@@ -1,10 +1,18 @@
-.movie-table {
+.app {
   width: 80%;
   margin: auto;
 }
 
+.movie-table {
+}
+
 .movie-table td {
   padding: 14px;
+  vertical-align: top;
+}
+
+.movie-table-title {
+  font-weight: bold;
 }
 
 .movie-table-description {
