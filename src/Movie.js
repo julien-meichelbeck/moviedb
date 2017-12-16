@@ -72,7 +72,9 @@ export default class Movie extends Component {
         </td>
         <td>
           <div className="d-flex">
-            <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150, height: 200 }} />
+            <div>
+              <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150 }} />
+            </div>
             <div className="px-3">
               <strong>
                 {title} ({release_date})
