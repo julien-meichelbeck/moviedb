@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import recompact from 'recompact'
 import Movie from './Movie'
 import { BehaviorSubject, Subject } from 'rxjs'

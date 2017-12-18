@@ -45,7 +45,7 @@ export default class Movie extends Component {
         </tr>
       )
     }
-    const { id, title, overview, release_date, poster_path, genre_ids } = movie
+    const { id, title, overview, release_date, poster_path, genre_ids, original_language } = movie
     return (
       <tr>
         <td style={{ width: 250 }}>
@@ -80,6 +80,7 @@ export default class Movie extends Component {
                 {title} ({release_date})
               </strong>
               <div>{genre_ids.map(id => GENRES[id]).join(', ')}</div>
+              <div>Language: {original_language}</div>
               <div className="py-3">{overview}</div>
             </div>
           </div>
