@@ -2,9 +2,8 @@ import React from 'react'
 import recompact from 'recompact'
 import Movie from './Movie'
 import { BehaviorSubject, Subject } from 'rxjs'
+import * as movieApi from './MovieApi'
 import './App.css'
-
-const API_KEY = 'd533369a57d21cba80e1b1c060585c47'
 
 export default recompact.compose(
   recompact.withObs(() => {
@@ -13,11 +12,9 @@ export default recompact.compose(
     const movieNames$ = submit$.withLatestFrom(text$, (submit, text) => text.split('\n').filter(name => name.length))
     const movieResults$ = movieNames$
       .switchMap(movieNames => {
-        return Promise.all(
-          movieNames.map(movieName =>
-            fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${movieName}&language=fr`)
-          )
-        ).then(responses => Promise.all(responses.map(response => response.json())))
+        return Promise.all(movieNames.map(movieApi.search)).then(responses =>
+          Promise.all(responses.map(response => response.json()))
+        )
       })
       .withLatestFrom(movieNames$, (jsons, names) =>
         names.reduce(
