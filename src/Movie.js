@@ -35,7 +35,8 @@ export default class Movie extends Component {
     this.setState({ selectedMovie: this.props.results.find(result => result.id === id), details: {} })
   }
 
-  showDetails() {
+  showDetails(event) {
+    event.preventDefault()
     movieApi
       .details(this.state.selectedMovie)
       .then(response => response.json())
