@@ -5,6 +5,7 @@ import { Observable, BehaviorSubject, Subject } from "rxjs"
 import * as movieApi from "./MovieApi"
 import "./App.css"
 
+const MAX = 40
 export default recompact.compose(
   recompact.withObs(() => {
     const submit$ = new Subject()
@@ -46,7 +47,7 @@ export default recompact.compose(
   recompact.withHandlers({
     onChange: ({ onChange }) => event => {
       const text = event.target.value
-      if (text.split("\n").length <= 40) {
+      if (text.split("\n").length <= MAX) {
         onChange(text)
       }
     }
@@ -58,14 +59,18 @@ export default recompact.compose(
       value={value}
       onChange={onChange}
       className="movie-search-input"
-      placeholder="One movie name per line (max 40)"
+      placeholder={`One movie name per line (max ${MAX})`}
       rows={5}
       className="form-control"
     />
     <button onClick={onSubmit} disabled={loading} className="btn btn-success mt-2">
       {loading ? "Loading ..." : "Search"}
     </button>
-
+    <div style={{ float: "right" }}>
+      <strong>
+        {(value || "").split("\n").length} / {MAX}
+      </strong>
+    </div>
     {movieResults ? (
       <div>
         <hr />
