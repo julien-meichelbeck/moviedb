@@ -1,26 +1,28 @@
-import React, { Component } from 'react'
-import * as movieApi from './MovieApi'
+import React, { Component } from "react"
+import * as movieApi from "./MovieApi"
+import Videos from "./Videos"
+import MovieSelector from "./MovieSelector"
 
 const GENRES = {
-  28: 'Action',
-  12: 'Aventure',
-  16: 'Animation',
-  35: 'Comédie',
-  80: 'Crime',
-  99: 'Documentaire',
-  18: 'Drame',
-  10751: 'Familial',
-  14: 'Fantastique',
-  36: 'Histoire',
-  27: 'Horreur',
-  10402: 'Musique',
-  9648: 'Mystère',
-  10749: 'Romance',
-  878: 'Science-Fiction',
-  10770: 'Téléfilm',
-  53: 'Thriller',
-  10752: 'Guerre',
-  37: 'Western',
+  28: "Action",
+  12: "Aventure",
+  16: "Animation",
+  35: "Comédie",
+  80: "Crime",
+  99: "Documentaire",
+  18: "Drame",
+  10751: "Familial",
+  14: "Fantastique",
+  36: "Histoire",
+  27: "Horreur",
+  10402: "Musique",
+  9648: "Mystère",
+  10749: "Romance",
+  878: "Science-Fiction",
+  10770: "Téléfilm",
+  53: "Thriller",
+  10752: "Guerre",
+  37: "Western"
 }
 
 export default class Movie extends Component {
@@ -28,11 +30,15 @@ export default class Movie extends Component {
     super(props)
     this.state = {
       selectedMovie: this.props.results[0],
+      details: {}
     }
   }
 
-  onSelectMovie(id) {
-    this.setState({ selectedMovie: this.props.results.find(result => result.id === id), details: {} })
+  onSelectMovie = id => {
+    this.setState({
+      selectedMovie: this.props.results.find(result => result.id === id),
+      details: {}
+    })
   }
 
   showDetails(event) {
@@ -45,6 +51,7 @@ export default class Movie extends Component {
 
   render() {
     const { selectedMovie, details = {} } = this.state
+    const { videos = { results: [] } } = details
     const { movieName, results } = this.props
     if (!selectedMovie) {
       return (
@@ -58,26 +65,7 @@ export default class Movie extends Component {
     return (
       <tr>
         <td style={{ width: 250 }}>
-          <strong>{movieName}</strong>
-          <ul>
-            {results.slice(0, 6).map(({ id: resultId, title }) => (
-              <li key={resultId}>
-                {id === resultId ? (
-                  title
-                ) : (
-                  <a
-                    href="#"
-                    onClick={event => {
-                      event.preventDefault()
-                      this.onSelectMovie(resultId)
-                    }}
-                  >
-                    {title}
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
+          <MovieSelector id={id} movieName={movieName} results={results} onSelectMovie={this.onSelectMovie} />
         </td>
         <td>
           <div className="d-flex">
@@ -93,26 +81,27 @@ export default class Movie extends Component {
                 release_date
               })
               <div>
-                <strong>Genres:</strong> {genre_ids.map(id => GENRES[id]).join(', ')}
+                <strong>Genres:</strong> {genre_ids.map(id => GENRES[id]).join(", ")}
               </div>
               <div>
                 {details.production_countries ? (
                   <span>
-                    <strong>Countries:</strong> {details.production_countries.map(({ name }) => name).join(', ')}
+                    <strong>Countries:</strong> {details.production_countries.map(({ name }) => name).join(", ")}
                   </span>
                 ) : null}
               </div>
               <div>
                 {details.credits && details.credits.cast ? (
                   <span>
-                    <strong>Casting:</strong>{' '}
+                    <strong>Casting:</strong>{" "}
                     {details.credits.cast
                       .slice(0, 5)
                       .map(({ name }) => name)
-                      .join(', ')}
+                      .join(", ")}
                   </span>
                 ) : null}
               </div>
+              <Videos videos={videos.results} />
               <div className="py-3">{overview}</div>
             </div>
           </div>
