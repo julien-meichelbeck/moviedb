@@ -1,15 +1,15 @@
-import React from 'react'
-import recompact from 'recompact'
-import Movie from './Movie'
-import { BehaviorSubject, Subject } from 'rxjs'
-import * as movieApi from './MovieApi'
-import './App.css'
+import React from "react"
+import recompact from "recompact"
+import Movie from "./Movie"
+import { BehaviorSubject, Subject } from "rxjs"
+import * as movieApi from "./MovieApi"
+import "./App.css"
 
 export default recompact.compose(
   recompact.withObs(() => {
     const submit$ = new Subject()
-    const text$ = new BehaviorSubject('')
-    const movieNames$ = submit$.withLatestFrom(text$, (submit, text) => text.split('\n').filter(name => name.length))
+    const text$ = new BehaviorSubject("")
+    const movieNames$ = submit$.withLatestFrom(text$, (submit, text) => text.split("\n").filter(name => name.length))
     const movieResults$ = movieNames$
       .switchMap(movieNames => {
         return Promise.all(movieNames.map(movieApi.search)).then(responses =>
@@ -20,34 +20,34 @@ export default recompact.compose(
         names.reduce(
           (acc, elem, index) => ({
             ...acc,
-            [elem]: jsons[index].results,
+            [elem]: jsons[index].results
           }),
           {}
         )
       )
-      .do(movieResults => localStorage.setItem('movieResults', JSON.stringify(movieResults)))
-      .startWith(localStorage.getItem('movieResults') ? JSON.parse(localStorage.getItem('movieResults')) : undefined)
+      .do(movieResults => localStorage.setItem("movieResults", JSON.stringify(movieResults)))
+      .startWith(localStorage.getItem("movieResults") ? JSON.parse(localStorage.getItem("movieResults")) : undefined)
 
     return {
       text$,
       submit$,
       movieNames$,
-      movieResults$,
+      movieResults$
     }
   }),
   recompact.connectObs(({ text$, submit$, movieResults$ }) => ({
     onChange: text$,
     onSubmit: submit$,
     value: text$,
-    movieResults: movieResults$,
+    movieResults: movieResults$
   })),
   recompact.withHandlers({
     onChange: ({ onChange }) => event => {
       const text = event.target.value
-      if (text.split('\n').length <= 40) {
+      if (text.split("\n").length <= 40) {
         onChange(text)
       }
-    },
+    }
   })
 )(({ value, onChange, onSubmit, movieResults }) => (
   <div className="container mt-3">
@@ -57,24 +57,20 @@ export default recompact.compose(
       onChange={onChange}
       className="movie-search-input"
       placeholder="One movie name per line (max 40)"
+      rows={5}
+      className="form-control"
     />
-
-    <br />
-
-    <button onClick={onSubmit} className="btn btn-success">
+    <button onClick={onSubmit} className="btn btn-success mt-2">
       Search
     </button>
 
     {movieResults ? (
       <div>
         <hr />
-        <table className="movie-table">
-          <tbody>
-            {Object.entries(movieResults).map(([movieName, results]) => (
-              <Movie key={movieName} movieName={movieName} results={results} />
-            ))}
-          </tbody>
-        </table>
+
+        {Object.entries(movieResults).map(([movieName, results]) => (
+          <Movie key={movieName} movieName={movieName} results={results} />
+        ))}
       </div>
     ) : null}
   </div>

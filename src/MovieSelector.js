@@ -1,26 +1,20 @@
 import React from "react"
 
 export default ({ id, movieName, results, onSelectMovie }) => (
-  <div>
-    <strong>{movieName}</strong>
-    <ul>
-      {results.slice(0, 6).map(({ id: resultId, title }) => (
-        <li key={resultId}>
-          {id === resultId ? (
-            title
-          ) : (
-            <a
-              href="#"
-              onClick={event => {
-                event.preventDefault()
-                onSelectMovie(resultId)
-              }}
-            >
-              {title}
-            </a>
-          )}
-        </li>
-      ))}
-    </ul>
-  </div>
+  <ul className="nav nav-tabs card-header-tabs">
+    {results.slice(0, 6).map(({ id: resultId, title }) => (
+      <li key={resultId} className="nav-item">
+        <a
+          href="#"
+          className={`nav-link ${id === resultId ? "active" : null}`}
+          onClick={event => {
+            event.preventDefault()
+            onSelectMovie(resultId)
+          }}
+        >
+          {title}
+        </a>
+      </li>
+    ))}
+  </ul>
 )

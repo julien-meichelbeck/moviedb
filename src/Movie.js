@@ -61,25 +61,30 @@ export default class Movie extends Component {
         </tr>
       )
     }
-    const { id, title, overview, release_date, poster_path, genre_ids, original_title } = selectedMovie
+    const { id, overview, release_date, poster_path, genre_ids, title, original_title } = selectedMovie
     return (
-      <tr>
-        <td style={{ width: 250 }}>
+      <div className="card mb-3">
+        <div className="card-header">
           <MovieSelector id={id} movieName={movieName} results={results} onSelectMovie={this.onSelectMovie} />
-        </td>
-        <td>
-          <div className="d-flex">
+        </div>
+        <div className="card-body">
+          <h5 className="card-title">{title}</h5>
+          <div className="card-text d-flex">
             <div>
-              <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150 }} />
+              <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150, maxHeight: "100%" }} />
+              <a href="#" className="btn btn-primary btn-dark btn-block mt-2" onClick={this.showDetails.bind(this)}>
+                More
+              </a>
             </div>
             <div className="px-3">
-              <a href="#" className="btn btn-outline-dark float-right" onClick={this.showDetails.bind(this)}>
-                show more
-              </a>
-              <strong>{title}</strong>
-              {original_title && original_title !== title ? <span>{` (${original_title}) `}</span> : null} ({
-                release_date
-              })
+              {original_title && original_title !== title ? (
+                <div>
+                  <strong>Nom VO:</strong> {original_title}
+                </div>
+              ) : null}
+              <div>
+                <strong>Sortie:</strong> {release_date}
+              </div>
               <div>
                 <strong>Genres:</strong> {genre_ids.map(id => GENRES[id]).join(", ")}
               </div>
@@ -105,8 +110,8 @@ export default class Movie extends Component {
               <div className="py-3">{overview}</div>
             </div>
           </div>
-        </td>
-      </tr>
+        </div>
+      </div>
     )
   }
 }
