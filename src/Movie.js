@@ -26,12 +26,9 @@ const GENRES = {
 }
 
 export default class Movie extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      selectedMovie: this.props.results[0],
-      details: {}
-    }
+  state = {
+    selectedMovie: this.props.results[0],
+    details: {}
   }
 
   onSelectMovie = id => {
@@ -41,7 +38,7 @@ export default class Movie extends Component {
     })
   }
 
-  showDetails(event) {
+  showDetails = event => {
     event.preventDefault()
     movieApi
       .details(this.state.selectedMovie)
@@ -55,10 +52,12 @@ export default class Movie extends Component {
     const { movieName, results } = this.props
     if (!selectedMovie) {
       return (
-        <tr>
-          <td>{movieName}</td>
-          <td>Not Found</td>
-        </tr>
+        <div className="card mb-3">
+          <div className="card-header">
+            <h5 className="card-title">{movieName}</h5>
+          </div>
+          <div className="card-body">Not Found</div>
+        </div>
       )
     }
     const { id, overview, release_date, poster_path, genre_ids, title, original_title } = selectedMovie
@@ -72,7 +71,7 @@ export default class Movie extends Component {
           <div className="card-text d-flex">
             <div>
               <img src={`https://image.tmdb.org/t/p/w500/${poster_path}`} style={{ width: 150, maxHeight: "100%" }} />
-              <a href="#" className="btn btn-primary btn-dark btn-block mt-2" onClick={this.showDetails.bind(this)}>
+              <a href="#" className="btn btn-primary btn-dark btn-block mt-2" onClick={this.showDetails}>
                 More
               </a>
             </div>
