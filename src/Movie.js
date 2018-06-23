@@ -2,6 +2,16 @@ import React, { Component } from "react"
 import * as movieApi from "./MovieApi"
 import Videos from "./Videos"
 import MovieSelector from "./MovieSelector"
+import ImdbRating from "./ImdbRating"
+import $ from "jquery"
+
+window.imdb = {
+  rating: {
+    run({ resource: { id, rating, ratingCount } }) {
+      window[id]({ rating, ratingCount })
+    }
+  }
+}
 
 const GENRES = {
   28: "Action",
@@ -27,28 +37,39 @@ const GENRES = {
 
 export default class Movie extends Component {
   state = {
-    selectedMovie: this.props.results[0],
-    details: {}
+    selectedMovieId: this.props.results[0] ? this.props.results[0].id : null,
+    results: this.props.results
   }
 
-  onSelectMovie = id => {
+  getSelectedMovie = () => this.state.results.find(result => result.id === this.state.selectedMovieId)
+
+  updateResult = newValues => {
     this.setState({
-      selectedMovie: this.props.results.find(result => result.id === id),
-      details: {}
+      results: this.state.results.map(
+        result => (result.id === this.state.selectedMovieId ? { ...result, ...newValues } : result)
+      )
     })
   }
 
   showDetails = event => {
     event.preventDefault()
+
     movieApi
-      .details(this.state.selectedMovie)
+      .details(this.state.selectedMovieId)
       .then(response => response.json())
-      .then(details => this.setState({ details }))
+      .then(details => {
+        this.updateResult({ details })
+        window[`/title/${details.imdb_id}/`] = imdbData => this.updateResult({ imdbData })
+        $.getScript(
+          `https://p.media-imdb.com/static-content/documents/v1/title/${
+            details.imdb_id
+          }/ratings%3Fjsonp=imdb.rating.run:imdb.api.title.ratings/data.json`
+        )
+      })
   }
 
   render() {
-    const { selectedMovie, details = {} } = this.state
-    const { videos = { results: [] } } = details
+    const selectedMovie = this.getSelectedMovie()
     const { movieName, results } = this.props
     if (!selectedMovie) {
       return (
@@ -60,11 +81,29 @@ export default class Movie extends Component {
         </div>
       )
     }
-    const { id, overview, release_date, poster_path, genre_ids, title, original_title } = selectedMovie
+
+    const {
+      id,
+      overview,
+      release_date,
+      poster_path,
+      genre_ids,
+      title,
+      original_title,
+      details = {},
+      imdbData
+    } = selectedMovie
+    const { videos = { results: [] } } = details
+
     return (
       <div className="card mb-3">
         <div className="card-header">
-          <MovieSelector id={id} movieName={movieName} results={results} onSelectMovie={this.onSelectMovie} />
+          <MovieSelector
+            id={id}
+            movieName={movieName}
+            results={results}
+            onSelectMovie={selectedMovieId => this.setState({ selectedMovieId })}
+          />
         </div>
         <div className="card-body">
           <h5 className="card-title">{title}</h5>
@@ -84,6 +123,11 @@ export default class Movie extends Component {
               <div>
                 <strong>Sortie:</strong> {release_date}
               </div>
+              {imdbData ? (
+                <div>
+                  <ImdbRating {...imdbData} />
+                </div>
+              ) : null}
               <div>
                 <strong>Genres:</strong> {genre_ids.map(id => GENRES[id]).join(", ")}
               </div>
